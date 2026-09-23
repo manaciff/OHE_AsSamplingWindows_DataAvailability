@@ -1,396 +1,292 @@
-[README_main.md](https://github.com/user-attachments/files/27899728/README_main.md)
-# Landscape Composition and Configuration as Drivers of Effective Habitat Area in Threatened Mammals
+# Assessing the Landscape Composition and Configuration of Threatened Medium- and Large-Sized Mammals using Habitat Envelopes as Sampling Windows
 
-**Scientific research repository** containing reproducible analysis code, publication-quality figures, and supplementary data tables for the manuscript submitted to *Landscape Ecology*.
+Short title: Habitat envelopes as sampling windows.
 
-**Author:** Maria Eduarda Nacif  
-**Affiliation:** Federal Fluminense University, Rio de Janeiro, Brazil  
-**Date:** May 2026  
-**DOI:** [To be assigned upon publication]  
-**Preprint/Under Review:** Landscape Ecology
+Code and data for the analysis of landscape configuration and the extent of the occupied habitat
+envelope of nine threatened medium and large mammal taxa in the Atlantic Forest of Rio de Janeiro
+State, Brazil.
 
----
-
-## Executive Summary
-
-Habitat fragmentation poses the primary threat to biodiversity in the Atlantic Forest, yet quantitative relationships between landscape composition, landscape configuration, and effective habitat availability remain poorly characterized for threatened mammalian taxa. This study quantifies landscape drivers of Effective Habitat Area (EHA) for nine medium and large-bodied mammals across a 27-unit sampling gradient in Rio de Janeiro State. Using generalized linear mixed models (GLMM, Gamma family), permutational multivariate analysis of variance (PERMANOVA), and model averaging via Akaike weights, we identify landscape metrics explaining 30–50% of EHA variation. Forest percentage of landscape (PLAND) emerges as the strongest predictor for arboreal frugivores (*Alouatta*, *Bradypus*), whereas patch density (PD) is critical for fragmentation-tolerant taxa (*Puma*, *Tayassu*). Results underscore the context-dependence of landscape effects on habitat availability and provide quantitative targets for conservation planning in Atlantic Forest fragments.
+**Author:** Maria Eduarda Nacif
+**Status:** manuscript in preparation. Last revision of the analysis chain: 22 August 2026.
+**Language:** R 4.5.2
 
 ---
 
-## Project Overview
+## What the study asks
 
-### Scientific Question
+Two questions, in this order.
 
-How do landscape composition and landscape configuration—as quantified by metrics from habitat fragmentation analysis (Fragstats)—drive variation in effective habitat area (EHA) available to threatened mammals in tropical Atlantic Forest?
+**The goal is inference, not prediction.** That is stated here because it governs the whole workflow.
+Tredennick et al. (2021) show that exploration, inference and prediction require different model
+selection procedures, and that most confusion comes from not declaring the goal first. The estimates
+this repository reports come from single models specified a priori and fitted once. The exhaustive
+search over subsets is present, and is labelled as a description of selection uncertainty rather than as
+a second set of estimates to test, because inference on coefficients is biased when it follows selection
+(Yates et al., 2023). These data cannot support prediction: every predictor is measured inside the
+polygon whose area is the response, so no predictor exists before the response is known.
 
-### Biological Context
+**Methodological.** Landscape studies often measure habitat configuration inside a window whose area is
+also the response variable. Home ranges, utilisation distributions, territories and occupied polygons
+are all used this way. When that happens, any metric normalised by the area of the window carries the
+response in its own denominator. This repository quantifies the consequence and shows that an
+information criterion cannot arbitrate between a model that contains such a metric and one that does
+not.
 
-The Atlantic Forest is the world's second-most biodiverse tropical forest but has lost ~88% of its original extent. Remaining fragments are embedded in a mosaic of agriculture, secondary growth, and human settlements. Nine medium to large-bodied mammal species (including two primates, two carnivores, one xenarthran, and one ungulate) are listed as threatened on the IUCN Red List. These taxa differ in dietary requirements, locomotion mode, and spatial scale of habitat use—traits expected to mediate their sensitivity to landscape fragmentation.
+**Empirical.** Which features of the remaining forest accompany a larger occupied habitat envelope, once
+the metrics exposed to that dependence are set aside?
 
-### Analytical Framework
+## The response variable, and what it is not
 
-**Design:** Observational study across 27 sampling units (SUs) spanning a gradient of fragmentation intensity (ranging from ~10% to ~70% forest cover).
+The response is the **area of the occupied habitat envelope (OHE)**: the 99 per cent isopleth of a
+kernel utilisation distribution fitted to occurrence records, masked and split into disjoint parts, one
+per local population. It is measured in hectares.
 
-**Response Variable:** Effective Habitat Area (EHA, hectares)—kernel-based estimate of space occupied by focal taxa, derived from occupancy/presence surveys.
+It is **not** the Area of Habitat of Brooks et al. (2019), which is the suitable habitat within a
+species range. In these data the forest inside the envelope is the closer analogue of that quantity and
+occupies a median of 54.9 per cent of the envelope. It is **not** the Area of Occupancy of the IUCN Red
+List, which is measured on a mandatory 2 by 2 km grid. No IUCN threshold is applied to any value here.
 
-**Predictors:** Eight landscape metrics computed at the SU scale:
-- Habitat composition: Class Area (CA), Percentage of Landscape (PLAND)
-- Habitat configuration: Number of Patches (NP), Patch Density (PD), Edge Density (ED), Mean Fractal Dimension (FRAC_MN), Mean Proximity Index (PROX_MN)
+## Sampling design
 
-**Data Source:** Land-cover rasters from MapBiomas Collection 10.1; habitat data from field surveys.
-
-**Key Findings:**
-- PERMANOVA reveals significant compositional differentiation by genus (p < 0.001) and diet (p = 0.001)
-- GLMM model selection identifies forest cover (PLAND) as primary EHA driver for arboreal frugivores
-- Patch density (PD) and configuration metrics crucial for carnivores and terrestrial species
-- Model-averaged predictions yield robust estimates accounting for model selection uncertainty
-
----
-
-## Repository Structure
-
-```
-landscape-ecology-eha-mammals/
-│
-├── README.md                            (This file: project overview)
-├── LICENSE                              (CC-BY-4.0 license)
-├── CITATION.cff                         (BibTeX and RIS formats)
-│
-├── Scripts/                             (R analysis code)
-│   ├── README.md                        (Full documentation)
-│   ├── Calculos_Landscape_Metrics.R     (Metric extraction pipeline)
-│   └── Script_LANDSCAPE_ECOLOGY_REVISED_v3_ColorPalettes.R  (Statistical analyses)
-│
-├── Figures/                             (Publication figures, 600 dpi TIFF)
-│   ├── README.md                        (Figure descriptions & captions)
-│   ├── Main_Figures/
-│   │   ├── Figure_1_NMDS_Ordination_by_Genus.tif
-│   │   ├── Figure_2_Response_Curves_[Taxon].tif
-│   │   └── Figure_3_Variable_Importance_Heatmap.tif
-│   ├── Supplementary_Figures/
-│   │   ├── Figure_S1_NMDS_Faceted_by_Factor.tif
-│   │   ├── Figure_S2_Correlation_Matrix_VIF.tif
-│   │   └── Figure_S3_Betadisper_Boxplots.tif
-│   └── Model_Diagnostics/
-│       ├── DHARMa_Diagnostics_Alouatta.tif
-│       ├── DHARMa_Diagnostics_Bradypus.tif
-│       └── ... (one per taxon)
-│
-└── Tables/                              (Supplementary data tables, CSV)
-    ├── README.md                        (Data dictionary)
-    ├── Input_Data/
-    │   └── Data_Raw_GLM_NMDS_Final.csv
-    ├── Analytical_Results/
-    │   ├── Table_S_Collinearity_VIF.csv
-    │   ├── Table_S_DHARMa_Diagnostics.csv
-    │   ├── Table_S_PERMANOVA_Global_Bray.csv
-    │   ├── PERMANOVA_Bray_Pairwise_[Factor].csv
-    │   ├── Table_S_Betadisper_Bray_Results.csv
-    │   ├── Table_S_Competitive_Models_Full.csv
-    │   ├── Table_S_Top3_Models_AICc.csv
-    │   ├── Table_S_Bray_Variable_Importance_Akaike.csv
-    │   └── Envfit_Configuration_Bray_Results.csv
-    └── Exploratory/
-        └── ... (preliminary analyses, sensitivity checks)
-```
+67 sampling units, from 9 taxa in 8 genera. Every analysis in this repository uses all 67; each script
+stops with a named list of offending cells if any step would reduce that number.
 
 ---
 
-## Quick Start
+## Repository layout
 
-### For Reviewers and Readers
+The scripts resolve every path with `here()` from the root of the repository, so the folder names
+below are the ones the code expects. A `.here` file marks the root for anyone who downloads a ZIP
+rather than cloning.
 
-1. **Browse the figures:** See `Figures/Main_Figures/` for primary ordinations and response curves
-2. **Inspect summary tables:** See `Tables/Analytical_Results/` for PERMANOVA, GLMM models, and diagnostics
-3. **Read detailed documentation:** Each folder contains a README.md with full interpretation
-
-### For Researchers Seeking to Reproduce Analyses
-
-**Step 1: Install R (≥ 4.5.2) and required packages**
-```r
-packages <- c("here", "terra", "landscapemetrics", "vegan", "tidyverse", 
-              "ggtext", "scales", "cluster", "patchwork", "MuMIn", 
-              "DHARMa", "emmeans", "corrplot", "lme4", "car")
-install.packages(packages)
+```
+R/                                 analysis scripts, numbered in execution order
+run_all.R                          runs the chain in order; scripts 00 and 01 are commented out
+                                   and run separately, see the note inside the file
+Dados/Processados/                 tabular inputs, and the files the scripts write back
+Dados/FRAGSTATS_RESULT/            FRAGSTATS patch and class tables, read by script 00
+Dados/Rasters/UA_RASTER/           67 per-unit rasters, read by script 00; see the note inside
+Dados/Shapefiles/                  hexagonal grid and the conservation value index layers
+08_Dados_Especies/                 per-taxon envelope polygons, read by script 01 for the centroids
+Outputs/Manuscrito/                tables and figures, one subfolder per part of the chain
+docs/                              per-script documentation and the table map
+arcpy_AOH_area_full_precision.py   exports the response at full precision from ArcGIS Pro
 ```
 
-**Step 2: Organize data according to directory structure**
-```
-D:/Duda_Nacif_TCC/
-├── Dados/
-│   ├── Rasters/UA_RASTER/          [GeoTIFF rasters]
-│   ├── FRAGSTATS_RESULT/           [FRAGSTATS Patch.csv]
-│   └── Processados/                [Intermediate CSVs]
-├── Outputs/Manuscrito/             [Generated figures & tables]
-└── Scripts/                        [R scripts]
-```
+Everything except the rasters is tracked here, about 29 MB in total. Scripts 01 to 05 run on the
+tabular files alone, and they produce every table and figure of the manuscript and of the
+supplementary material. Script 00 additionally needs the 2.6 GB of rasters, which are archived
+separately; `Dados/Rasters/UA_RASTER/READ_THIS_FIRST.md` says where to get them and why they are
+not here.
 
-**Step 3: Run scripts in order**
-```r
-# Extract landscape metrics
-source(here::here("Scripts", "Calculos_Landscape_Metrics.R"))
+## Execution order
 
-# Statistical analyses and figure generation
-source(here::here("Scripts", "Script_LANDSCAPE_ECOLOGY_REVISED_v3_ColorPalettes.R"))
-```
+The scripts must run in numerical order. Each one verifies what it receives from the previous one and
+stops rather than analysing a reduced sample.
 
-**Expected outputs:** 
-- 10+ CSV tables in `Outputs/Manuscrito/`
-- 8+ TIFF figures at 600 dpi
-- Complete session information logged to console
-
-### For Developers Wishing to Adapt Code
-
-- All scripts use `here::here()` for reproducible relative paths
-- Fixed random seed (`GLOBAL_SEED = 123`) ensures replicability
-- Modular function definitions permit flexible extension
-- Detailed inline comments explain each analytical step
-
----
-
-## Key Results Summary
-
-### Multivariate Composition Structure (PERMANOVA)
-
-| Grouping Factor | F-value | p-value | R² | Interpretation |
+| # | Script | Reads | Writes | Runtime |
 |---|---|---|---|---|
-| Diet | 3.421 | 0.001 *** | 0.087 | Significant: carnivores vs. folivores differ in composition |
-| Locomotion | 2.156 | 0.042 * | 0.062 | Marginally significant: arboreal vs. terrestrial species differ |
-| Genus | 4.201 | < 0.001 *** | 0.166 | Highly significant: genera occupy distinct landscape niches |
-| Species | 4.563 | < 0.001 *** | 0.189 | Highly significant: species-level compositional divergence |
+| 00 | `00_recompute_class_metrics.R` | 67 rasters, FRAGSTATS patch tables | `Tabela_Metricas_Recomputada.csv`, agreement table | minutes |
+| 01 | `01_prepare_data_and_ordination.R` | raw table, recomputed table, shapefiles | `Data_Raw_WithCoords.csv`, Tables 1 to 4, Figures 1 to 3 | seconds |
+| 02 | `02_constrained_ordination_and_partitioning.R` | `Data_Raw_WithCoords.csv` | RDA, variation partitioning, Moran eigenvectors | ~1 min |
+| 03 | `03_univariate_model_selection.R` | `Data_Raw_WithCoords.csv`, MEM vectors from 02 | confirmatory model, spatial sensitivity, genus-level slopes, selection uncertainty | ~3 min |
+| 04 | `04_geometric_coupling_diagnostic.R` | `Data_Raw_FINAL.csv` | algebraic identity, circular controls | seconds |
+| 05 | `05_ratio_artefact_test.R` | `Data_Raw_WithCoords.csv` | permutation null, reported model and its figure | ~10 min |
+| 99 | `99_legacy_metric_extraction.R` | rasters | superseded by 00; kept for provenance | — |
 
-### Best-Supported GLMM Models (Top 3 per Taxon)
+**Run 02 before 03.** Script 02 writes the Moran eigenvectors that the spatial sensitivity check of
+script 03 reads.
 
-| Taxon | Rank 1 Model | wAIC | R² |
-|---|---|---|---|
-| *Alouatta guariba* | PLAND_Forest | 0.847 | 0.52 |
-| *Bradypus variegatus* | PD_Forest | 0.421 | 0.38 |
-| *Brachyteles arachnoides* | PLAND_Forest | 0.756 | 0.61 |
-| *Leopardus guttulus* | ED_Forest + FRAC_MN_Forest | 0.534 | 0.44 |
-| *Mazama nemorivaga* | ED_Forest + PROX_MN_Forest | 0.623 | 0.58 |
-| *Myrmecophaga tridactyla* | NP_Forest | 0.489 | 0.41 |
-| *Puma concolor* | NP_Forest + PD_Forest | 0.510 | 0.55 |
-| *Tayassu pecari* | PD_Forest + ED_Forest | 0.467 | 0.46 |
+**Do not skip 00.** Two sampling units reach the consolidated dataset with empty cells, and without 00
+they are dropped silently by `complete.cases()` further downstream.
 
-### Residual Diagnostics (DHARMa)
+## Reproducibility
 
-- **8 of 9 taxa (89%):** PASS (all diagnostic tests non-significant)
-- **1 taxon:** WARN (marginal sobredispersion in *Bradypus*, p = 0.028)
-- **Overall model adequacy:** Gamma specification appropriate
+- Seed fixed at 123 in every script.
+- 9,999 permutations in every permutation test.
+- Cross validation is exact leave-one-out, with leave-one-genus-out reported beside it.
+- AICc and BIC are both reported; where they disagree the disagreement is the result.
+- Paths are relative, resolved with `here::here()`.
+- `sessionInfo()` is printed at the end of every script and written to `outputs/session_info_part*.txt`.
+- Term tests in the constrained ordination are marginal, not sequential.
+- The ordination response is Hellinger transformed, so that the size of the sampling window does not
+  enter an analysis of composition.
 
----
+### Packages
 
-## Documentation
+`here`, `terra`, `landscapemetrics`, `sf`, `tidyverse`, `vegan`, `adespatial`, `car`, `MuMIn`,
+`DHARMa`, `lme4`, `ggridges`, `ggtext`, `ggrepel`, `corrplot`, `patchwork`,
+`scales`.
 
-Each subdirectory contains a comprehensive README.md with:
+### Two packages that must not be attached carelessly
 
-| Document | Content |
-|---|---|
-| **Scripts/README.md** | Script descriptions, dependencies, parameter specifications, reproducibility guide, interpretation of results |
-| **Figures/README.md** | Figure catalog, legends, color palettes, technical specifications (600 dpi, TIFF), interpretation guide |
-| **Tables/README.md** | Data dictionary, column definitions, statistical interpretations, CSV import examples |
+`MASS` exports `select()` and `car` exports `recode()`, both of which mask the `dplyr` functions of the
+same name. Script 05 avoids `ppcor` for that reason and qualifies every call as `dplyr::select()`.
 
-**Recommended reading order:**
-1. Start here (README.md) for project overview
-2. Read `Scripts/README.md` for methodological details
-3. Review `Tables/README.md` for data structure and results interpretation
-4. Examine figures in `Figures/` with accompanying README.md captions
+## Data sources
 
----
+- **Land cover:** MapBiomas Collection 10.1, reference year 2024, 30 m, minimum mapping unit near 0.5
+  ha. Reported accuracy for the Atlantic Forest is 91.5 per cent at level 1 and 86.1 per cent at level 2.
+- **Occurrence records:** compiled by Macedo et al. (2019), filtered to 1990 to 2020.
+- **Landscape metrics:** `landscapemetrics` for class-level metrics; FRAGSTATS for the proximity index,
+  which requires a user-defined search radius that `landscapemetrics` does not implement.
 
-## Methodological Highlights
+## Known limitations of the design
 
-### Collinearity Management
+Stated here because they govern what the code can and cannot demonstrate.
 
-Variance Inflation Factor (VIF) screening identified Largest Patch Index (LPI) as problematic (VIF = 53.12, 48.79) due to extreme correlation with PLAND (r = 0.98). LPI was:
-- **Excluded from GLMM:** Prevents parameter estimation instability
-- **Retained in envfit:** Its ecological meaning (dominance of a single core patch) is distinct from PLAND (proportional cover)
+1. The sampling window is the response. Metrics normalised by it are not separable from that
+   construction. Script 05 measures how far this reaches.
+2. The occurrence records span 1990 to 2020 while the land cover is 2024.
+3. A single kernel bandwidth, calibrated on *Panthera onca*, is applied to all taxa.
+4. Per-genus samples range from four to twelve units, so per-genus estimates are exploratory.
 
-**Justification:** Published in landscape ecology literature; see References.
+## What is not in this repository
 
-### Permutation Standardization
+The weighted conservation value index behind Figure 8 and Tables S36 and S37, and the study area map of
+Figure 1, were built in a geographic information system rather than in R. Section 5 of the supplement
+states the geoprocessing steps, and the input polygons are archived here, so both can be rebuilt.
 
-All randomization-based tests employ **9,999 permutations** (not 999), providing p-value precision to ~0.0001, appropriate for hypothesis testing in community ecology (Anderson, 2017).
+## What must be in place before this repository is archived
 
-### Response Variable Handling
+Two things are still outstanding.
 
-EHA observations containing structural zeros received pseudocount of 0.001 hectares (prior to log transformation). This:
-- Prevents log(0) = −∞ numerical errors
-- Preserves rank ordering
-- Maintains ecological interpretability (1 m² negligible in regional context)
+1. **The 67 per-unit rasters**, 2.6 GB, which only script 00 reads. Deposit them on Zenodo and record
+   the DOI in `CITATION.cff`. Scripts 01 to 05 do not need them, and the result of the recomputation
+   script 00 performs is already tracked in `Outputs/Manuscrito/Part0/`.
+2. **A completed `CITATION.cff`**: the release date, the repository URL and the archive DOI are still
+   placeholders, and the same three values belong in the Data Availability statement of the
+   manuscript.
 
-Sensitivity analyses with 0.01 and 0.1 ha yielded identical model rankings.
+## Revision of 24 August 2026
 
-### Model Selection and Averaging
+- **The envelope protocol is attributed.** Section 2.4 of Macedo et al. (2019) describes the same
+  procedure this study executed, down to the reference species and the bandwidth rule. The manuscript
+  cited that paper only as the source of the occurrence records; Section 2.3 now states the filiation
+  and marks the one departure, the 99% isopleth in place of the whole utilization distribution.
+- **Figure S10.** The coefficient plot that script `03` had always written was reproduced in neither
+  document. It is now Figure S10, redrawn with the three terms the response normalises separated from
+  the three that can be read, and without a significance mark on the first three.
+- **Eight defects in the chain**, from a guard that fired with the wrong error to a manifest that
+  advertised a file no line writes. `docs/Registro_de_Correcoes_24.08.md` lists each one with its
+  effect.
+- **Dead code removed** and the six scripts standardised: one export of session information per
+  script, constants in the constants block, no unreachable branches, no packages attached without
+  use. Script `99` can no longer be run by accident over the inputs of the chain.
+- Script `04`, previously bilingual, is in English throughout. It was re-run on the same input and
+  reproduces the verified output value for value.
 
-Generalized linear mixed models with gamma family and log link were fit separately for each taxon. Candidate sets were generated via `MuMIn::dredge()`, and models meeting delta-AICc ≤ 2 were considered equally plausible. Parameter estimates and predictions were computed as weighted averages using Akaike weights, ensuring robustness to model selection uncertainty.
+## Revision of 23 August 2026
 
----
+The response is now read at full precision everywhere, and the chain was re-run from script 00. The
+changes it produced are small and no conclusion moved; `docs/Registro_de_Correcoes_23.08.md` lists them
+one by one.
+
+- `arcpy_AOH_area_full_precision.py` exports the area of every sampling unit from the same polygons,
+  with every significant digit. Script 01 consumes the file when it is present, joins it by
+  `(SPECIES, UA_ID)`, and stops if any unit is missing or departs by more than five per cent.
+- **Script 04 read a different file from scripts 03 and 05.** It read `Data_Raw_FINAL.csv`, in which the
+  response is stored as a whole number, so the two tables that verify the same algebraic identity
+  disagreed: Table S26 reported a maximum discrepancy of 0.0290 and Table S28e reported 0.0277. Script
+  04 now reads `Data_Raw_WithCoords.csv`, the file the rest of the chain reads, and both tables report
+  0.0277.
+- **The captions of Figures S5 and S6 described a mixed model.** Section 8 of script 03 retains the
+  Gamma model on these data, so `global_model` is a `glm` and both figures are panels of it. Script 03
+  now exports `Table_S_PartIII_ObsPred_R2.csv`, so the values quoted in the caption of Figure S5 come
+  from a file rather than from the image.
+- **`run_all.R` could not find the scripts.** With `ANALISES_TCC.Rproj` open, `here()` resolves to the
+  working folder, where `R/` does not exist, and `source(here("R", s))` failed on the first script.
+  `run_all.R` now locates the chain from its own position and checks that `Dados/` and `Outputs/` exist
+  before the first `source`.
+- The exported row labels and the figure axis labels now call the response OHE, the name the
+  manuscript uses, instead of AOH.
+- Script 05 records how many units fall in a cluster of coincident centroids and how many of those
+  clusters mix taxa, beside the thinning result it already exported.
+- The repository carries the data. `Dados/`, `08_Dados_Especies/` and `Outputs/` mirror the layout the
+  scripts address with `here()`; only the rasters are held back for size.
+
+## Revision of 22 August 2026
+
+Three defects were found by tracing every number in the manuscript back to the cell that produces it,
+rather than by matching numbers against the set of all exported values. All three are fixed in the
+scripts and documented at the point where they apply.
+
+- Script 02, Section 9. The fractions of `varpart()` were read by position. In vegan 2.6.4 the rows of
+  `$part$indfract` are ordered `[a] = X1|X2`, `[b] = X2|X1`, `[c]`, `[d]`, so positional reading
+  exchanged the shared and the purely spatial fractions. Two arithmetic identities are now asserted
+  before anything is written.
+- Script 02, Section 11. The ordination response was the square root of the absolute class area, which
+  carries the area of the sampling unit. It is now Hellinger transformed. Term tests were sequential and
+  were reported as marginal; marginal tests are now computed and reported.
+- Script 03, Section 3. Three input files were accepted in order of preference, of which only one
+  reproduces the published results. The required input is now named.
 
 ## Citation
 
-**Manuscript (when published):**
-```
-Nacif, M. E. (2026). Landscape composition and configuration as drivers of Effective 
-Habitat Area (EHA) of threatened mammals in Rio de Janeiro State, Brazil. 
-Landscape Ecology, [volume(issue)], pp. [xx–xx].
-```
-
-**Code and Data Repository:**
-```
-Nacif, M. E. (2026). Landscape composition and configuration as drivers of Effective 
-Habitat Area (EHA) of threatened mammals [Code and data]. GitHub. 
-https://github.com/[username]/landscape-ecology-eha-mammals. 
-https://doi.org/[Zenodo or Figshare DOI, if applicable]
-```
-
-**BibTeX:**
-```bibtex
-@article{nacif2026eha,
-  author = {Nacif, Maria Eduarda},
-  year = {2026},
-  title = {Landscape composition and configuration as drivers of {E}ffective {H}abitat 
-           {A}rea of threatened mammals in {R}io de {J}aneiro {S}tate, {B}razil},
-  journal = {Landscape Ecology},
-  volume = {TBD},
-  pages = {TBD},
-  doi = {10.1007/s10980-XXXXX-X}
-}
-
-@software{nacif2026code,
-  author = {Nacif, Maria Eduarda},
-  year = {2026},
-  title = {Landscape composition and configuration as drivers of {EHA} — {R} scripts 
-           and supplementary data},
-  url = {https://github.com/[username]/landscape-ecology-eha-mammals},
-  note = {GitHub repository; DOI: 10.5281/zenodo.XXXXXXX}
-}
-```
-
----
-
-## License
-
-This repository is licensed under **Creative Commons Attribution 4.0 International (CC-BY-4.0)**. You are free to:
-- Share and adapt the code and data
-- Use for any purpose (including commercial)
-- Create derivative works
-
-**Provided that you:**
-- Give appropriate credit to the author
-- Provide a link to the license
-- Indicate if changes were made
-- Do not apply additional legal terms that restrict others' use of the work
-
-See LICENSE file for full terms.
-
----
-
-## Contact and Support
-
-**Author:** Maria Eduarda Nacif  
-**Email:** [institutional email]  
-**ORCID:** [0000-XXXX-XXXX-XXXX]  
-**Affiliation:** Department of Ecology, Federal Fluminense University, Niterói, RJ 24020-141, Brazil
-
-**For questions about:**
-- **Manuscript content:** [email]
-- **Data or code:** Open an issue on GitHub or email [email]
-- **Collaboration requests:** [email]
-
-**GitHub Issues:**
-Please report bugs, suggest improvements, or ask questions via the repository's Issues tab. Provide:
-1. Clear description of the problem
-2. Reproducible example (if applicable)
-3. R/Python version and operating system
-
----
-
-## Manuscript Submission Status
-
-| Phase | Date | Journal | Status |
-|---|---|---|---|
-| **Submission** | May 2026 | *Landscape Ecology* | Under review |
-| **Editor assignment** | — | — | — |
-| **Peer review** | — | — | — |
-| **Acceptance** | — | — | — |
-| **Publication** | — | — | — |
-
----
-
-## Funding and Acknowledgments
-
-**Funding:** This research was supported by:
-- [Funding source 1] (Grant #XXXX)
-- [Funding source 2] (Grant #XXXX)
-- Graduate fellowship from [Institution]
-
-**Acknowledgments:**
-We thank field assistants for data collection; laboratory collaborators for habitat surveys; and Prof. [Name] for comments on the manuscript. We acknowledge MapBiomas for land-cover data; FRAGSTATS developers; and the R community for open-source packages.
-
-**Competing Interests:** The author(s) declare no competing financial interests.
-
-**Data Availability:** All data and code are provided in this repository under CC-BY-4.0 license. Raw rasters and FRAGSTATS outputs are available upon request. No restrictions on data access.
-
----
-
-## System Requirements
-
-- **R:** ≥ 4.5.2
-- **Operating System:** Windows, macOS, or Linux
-- **Disk Space:** ~2 GB (data + outputs)
-- **Memory:** ≥ 4 GB RAM (8 GB recommended)
-
-**Package Versions Tested:**
-- vegan 2.6-2
-- lme4 1.1-35
-- MuMIn 1.47.5
-- DHARMa 0.4.6
-- (See Scripts/README.md for complete list)
-
----
-
-## Reproducibility Guarantee
-
-**Guarantee:** Given identical input data, R version ≥ 4.5.2, and the seed value `GLOBAL_SEED = 123`, numerical outputs (p-values, parameter estimates, confidence intervals) are reproducible to machine precision.
-
-**To verify reproducibility:**
-1. Run both scripts from scratch (delete any previously generated files)
-2. Compare generated CSV tables and figures to those in this repository
-3. Numerical values should match exactly (within floating-point tolerance, ~1e-15)
-
----
+Please cite the manuscript once published. Until then, cite this repository and its DOI.
 
 ## References
 
-Anderson, M. J. (2017). Permutational multivariate analysis of variance (PERMANOVA). *Wiley StatsRef: Statistics Reference Online*, 1–15. https://doi.org/10.1002/9781118445112.stat07841
+Blanchet, F.G., Legendre, P., Borcard, D. (2008) Forward selection of explanatory variables. *Ecology*
+89, 2623-2632.
+Brewer, M.J., Butler, A., Cooksley, S.L. (2016) The relative performance of AIC, AICc and BIC in the
+presence of unobserved heterogeneity. *Methods in Ecology and Evolution* 7, 679-692.
+Brooks, T.M. et al. (2019) Measuring terrestrial Area of Habitat (AOH) and its utility for the IUCN Red
+List. *Trends in Ecology & Evolution* 34, 977-986.
+Fahrig, L. (2013) Rethinking patch size and isolation effects: the habitat amount hypothesis. *Journal
+of Biogeography* 40, 1649-1663.
+Gelber, S. et al. (2025) Geometric and demographic effects explain contrasting fragmentation-biodiversity
+relationships across scales. *Oikos* 2025, e10778.
+Diniz-Filho, J.A.F., Rangel, T.F.L.V.B., Bini, L.M. (2008) Model selection and information theory in
+geographical ecology. *Global Ecology and Biogeography* 17, 479-488.
+Kronmal, R.A. (1993) Spurious correlation and the fallacy of the ratio standard revisited. *Journal of
+the Royal Statistical Society A* 156, 379-392.
+Neel, M.C., McGarigal, K., Cushman, S.A. (2004) Behavior of class-level landscape metrics across
+gradients of class aggregation and area. *Landscape Ecology* 19, 435-455.
+Tredennick, A.T., Hooker, G., Ellner, S.P., Adler, P.B. (2021) A practical guide to selecting models for
+exploration, inference, and prediction in ecology. *Ecology* 102, e03336.
+Yates, L.A., Aandahl, Z., Richards, S.A., Brook, B.W. (2023) Cross validation for model selection: a
+review with examples from ecology. *Ecological Monographs* 93(1), e1557.
 
-Barton, K. (2023). *MuMIn: Multi-Model Inference* (R package version 1.47.5). Retrieved from https://CRAN.R-project.org/package=MuMIn
+## Revisão de 25 de agosto de 2026
 
-Greco, A. M., Hromada, M., & Canova, L. (2025). Defining Effective Habitat Area in landscape ecology: A standardized framework for conservation. *Biological Conservation*, 291, 110507.
+A cadeia foi reexecutada pela autora. Dos 66 arquivos CSV em
+`Outputs/Manuscrito/`, três mudaram: `TableS28_Geometric_Coupling.csv`, agora
+coerente com o script 05 depois da correção de entrada de 24 de agosto, com a
+verificação da identidade algébrica passando de 0,029 para 0,0277;
+`PartV/TableS_PartV_Identity_and_PartialCorrelations.csv`, só em rótulos; e
+`Table_S_PartIII_ObsPred_R2.csv`, arquivo novo. Os outros 63 são idênticos byte a
+byte.
 
-Macedo, M. H. S., Rodrigues, R. B., Vilela, B., Villalobos, F., & Diniz-Filho, J. A. F. (2019). Assessing the most irreplaceable protected areas for the conservation of mammals in the Atlantic Forest. *Biodiversity and Conservation*, 28, 1749–1763.
+As 42 tabelas do material suplementar e as 3 do manuscrito foram conferidas
+célula a célula contra os arquivos exportados, com casamento de linha por chave e
+exigência de que cada coluna venha de um único campo do CSV em todas as linhas
+(`doc/verify_grid2.py`). Trinta e oito passaram automaticamente; as outras quatro
+foram conferidas à mão e também estão corretas.
 
-Oksanen, J., Blanchet, F. G., Friendly, M., Kindt, R., Legendre, P., McGlinn, D., ... & Wagner, H. (2022). *vegan: Community Ecology Package* (R package version 2.6-2). Retrieved from https://CRAN.R-project.org/package=vegan
+Quatro correções de texto foram aplicadas, nenhuma numérica: duas frases do
+manuscrito que contradiziam a tabela que citavam, dois arredondamentos errados na
+legenda da Tabela S21, e uma oração sem predicado na legenda da Tabela S28f.
+`docs/Registro_de_Correcoes_25.08.md` traz o antes e o depois de cada uma.
 
-Smyth, G. K. (2011). Generalized linear models with unknown link function. *Computational Statistics & Data Analysis*, 43(4), 551–560.
+Três scripts novos, fora da cadeia inferencial, calculam a probabilidade de
+conectividade de Saura e Pascual-Hortal (2007) em três envelopes, como material
+de defesa. Ver `docs/TABLE_MAP.md`.
 
 ---
 
-## Changelog
+## Estado em 29 de agosto de 2026
 
-| Version | Date | Changes |
-|---|---|---|
-| 1.0 | May 2026 | Initial release for manuscript submission |
+`Dados/Processados/Data_Raw_WithCoords.csv` foi substituido nesta data. A copia
+anterior do repositorio trazia a variavel resposta arredondada para inteiro, com
+valores diferentes dos publicados, de modo que uma execucao a partir do
+repositorio nao reproduzia os numeros do artigo. O arquivo agora e identico ao da
+pasta de trabalho, md5 `881996be7335b4af0c90bcc5c5303e41`.
 
----
+`R/08_sampling_effort_sensitivity.R` foi executado em R 4.5.2 nesta data. As
+Tabelas S42 e S42b do material suplementar vem dessa execucao, e o `session_info`
+correspondente esta em `Outputs/Manuscrito/PartVI/session_info_part08.txt` da
+pasta de trabalho.
 
-**Last Updated:** 16 May 2026  
-**Repository Version:** 1.0  
-**Reproducibility Standard:** Fixed seed (123), standardized permutations (9,999)  
-**Compatibility:** R ≥ 4.5.2 (Windows, macOS, Linux)
-
----
-
-**For the latest updates, visit:** [GitHub URL]  
-**To cite this repository:** See CITATION.cff
+`docs/Registro_de_Correcoes_29.08.md` traz a auditoria numerica completa e o
+antes e o depois de cada edicao.

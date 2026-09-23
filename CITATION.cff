@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+title: "Assessing the Landscape Composition and Configuration of Threatened Medium- and Large-Sized Mammals using Habitat Envelopes as Sampling Windows"
+abstract: >-
+  Analysis code and derived data for a study of landscape composition and
+  configuration within the occupied habitat envelopes of nine threatened medium
+  and large mammal taxa in the Atlantic Forest of Rio de Janeiro State, Brazil.
+  The chain delineates 67 sampling units from kernel utilisation distributions,
+  quantifies class-level landscape metrics within each, and models envelope
+  extent while measuring the geometric dependence between the response and any
+  metric normalised by the area of the sampling window.
+message: "If you use this software or these data, please cite both this repository and the associated article."
+type: software
+authors:
+  - family-names: Nacif
+    given-names: Maria Eduarda
+    orcid: "https://orcid.org/0009-0009-6975-1615"
+    affiliation: "Universidade Estadual do Norte Fluminense, Laboratório de Ciências Ambientais, Campos dos Goytacazes, Rio de Janeiro, Brazil"
+  - family-names: Macedo
+    given-names: Leandro de
+    orcid: "https://orcid.org/0000-0002-0267-3837"
+  - family-names: Butti
+    given-names: Mariella
+    orcid: "https://orcid.org/0000-0001-6738-6962"
+  - family-names: Rezende
+    given-names: Carlos Eduardo de
+    orcid: "https://orcid.org/0000-0003-2804-8930"
+    affiliation: "Universidade Estadual do Norte Fluminense, Laboratório de Ciências Ambientais, Campos dos Goytacazes, Rio de Janeiro, Brazil"
+  - family-names: Lima
+    given-names: Vinicius Santos
+    orcid: "https://orcid.org/0000-0002-3415-8119"
+    affiliation: "Universidade Estadual do Norte Fluminense, Laboratório de Ciências Ambientais, Campos dos Goytacazes, Rio de Janeiro, Brazil"
+license: MIT
+version: "1.0.0"
+# TO COMPLETE BEFORE SUBMISSION. Replace the three fields below with the real
+# values, then copy them into the Data Availability statement of the manuscript.
+# They are the only placeholders left in this file.
+date-released: "AAAA-MM-DD"
+repository-code: "https://github.com/<usuario>/<repositorio>"
+doi: "10.5281/zenodo.XXXXXXX"
+keywords:
+  - landscape ecology
+  - habitat fragmentation
+  - spurious correlation
+  - ratio variables
+  - Atlantic Forest
+  - mammal conservation

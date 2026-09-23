@@ -1,0 +1,22 @@
+# R
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# Dados pesados: distribuir por repositorio com DOI, nao pelo Git.
+# Os 67 rasters por unidade somam 2,6 GB e so o script 00 os le.
+Dados/Rasters/
+Dados/Processados/_part0_cache/
+Dados/Brutos/
+
+# Saidas grandes
+Outputs/**/*.tiff
+
+# Arquivos de transferencia e de sessao
+*.tgz
+_to_delete/
+
+# Sistema
+.DS_Store
+Thumbs.db

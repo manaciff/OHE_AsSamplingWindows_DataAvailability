@@ -1,0 +1,10 @@
+# Normaliza as quebras de linha no repositorio. Evita que um commit feito no
+# Windows apareca como reescrita completa do arquivo.
+*.R    text eol=lf
+*.md   text eol=lf
+*.csv  text eol=lf
+*.cff  text eol=lf
+*.tif  binary
+*.tiff binary
+*.docx binary
+*.xlsx binary
