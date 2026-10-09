@@ -2,12 +2,13 @@ cff-version: 1.2.0
 title: "Assessing the Landscape Composition and Configuration of Threatened Medium- and Large-Sized Mammals using Habitat Envelopes as Sampling Windows"
 abstract: >-
   Analysis code and derived data for a study of landscape composition and
-  configuration within the occupied habitat envelopes of nine threatened medium
-  and large mammal taxa in the Atlantic Forest of Rio de Janeiro State, Brazil.
-  The chain delineates 67 sampling units from kernel utilisation distributions,
-  quantifies class-level landscape metrics within each, and models envelope
-  extent while measuring the geometric dependence between the response and any
-  metric normalised by the area of the sampling window.
+  configuration within the occupied habitat envelopes of nine threatened medium-
+  and large-sized mammal taxa in the Atlantic Forest of Rio de Janeiro State,
+  Brazil. The 67 sampling units are disjoint parts of kernel utilization
+  distributions fitted to occurrence records. The code verifies the class-level
+  landscape metrics of each unit, models envelope extent, and measures the
+  geometric dependence between the response and any metric normalized by the
+  area of the sampling window.
 message: "If you use this software or these data, please cite both this repository and the associated article."
 type: software
 authors:
